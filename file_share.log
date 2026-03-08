@@ -1,0 +1,166 @@
+2026-03-01 10:25:46,525 - INFO - 服务器启动 - 监听地址: 0.0.0.0:8080
+2026-03-01 10:25:47,462 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.3.62:8080
+2026-03-01 10:25:47,499 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-01 10:25:57,534 - ERROR - 服务器错误: name 'render_template_string' is not defined
+2026-03-01 10:25:57,559 - INFO - 192.168.3.62 - - [01/Mar/2026 10:25:57] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-01 10:25:58,955 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:25:58,957 - INFO - 192.168.3.62 - - [01/Mar/2026 10:25:58] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:31:33,953 - INFO - 服务器启动 - 监听地址: 0.0.0.0:8080
+2026-03-01 10:31:34,884 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.3.62:8080
+2026-03-01 10:31:34,885 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-01 10:31:42,401 - ERROR - 服务器错误: name 'render_template_string' is not defined
+2026-03-01 10:31:42,403 - INFO - 192.168.3.62 - - [01/Mar/2026 10:31:42] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-01 10:31:43,079 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:31:43,085 - INFO - 192.168.3.62 - - [01/Mar/2026 10:31:43] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:31:59,632 - ERROR - 服务器错误: name 'render_template_string' is not defined
+2026-03-01 10:31:59,633 - INFO - 192.168.3.62 - - [01/Mar/2026 10:31:59] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-01 10:31:59,982 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:31:59,986 - INFO - 192.168.3.62 - - [01/Mar/2026 10:31:59] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:32:09,915 - ERROR - 服务器错误: name 'render_template_string' is not defined
+2026-03-01 10:32:09,916 - INFO - 127.0.0.1 - - [01/Mar/2026 10:32:09] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-01 10:32:10,829 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:32:10,831 - INFO - 127.0.0.1 - - [01/Mar/2026 10:32:10] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:33:10,072 - INFO - 服务器启动 - 监听地址: 0.0.0.0:8080
+2026-03-01 10:33:10,984 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.3.62:8080
+2026-03-01 10:33:10,985 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-01 10:33:13,612 - INFO - 127.0.0.1 - - [01/Mar/2026 10:33:13] "GET / HTTP/1.1" 200 -
+2026-03-01 10:33:14,263 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:33:14,270 - INFO - 127.0.0.1 - - [01/Mar/2026 10:33:14] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:33:31,655 - INFO - 文件上传成功: 7.xlsx
+2026-03-01 10:33:31,657 - INFO - 127.0.0.1 - - [01/Mar/2026 10:33:31] "POST /upload HTTP/1.1" 200 -
+2026-03-01 10:33:32,521 - INFO - 127.0.0.1 - - [01/Mar/2026 10:33:32] "GET / HTTP/1.1" 200 -
+2026-03-01 10:33:32,893 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:33:32,896 - INFO - 127.0.0.1 - - [01/Mar/2026 10:33:32] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:34:26,927 - INFO - 192.168.3.25 - - [01/Mar/2026 10:34:26] "GET / HTTP/1.1" 200 -
+2026-03-01 10:34:27,200 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:34:27,201 - INFO - 192.168.3.25 - - [01/Mar/2026 10:34:27] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:34:28,927 - INFO - 文件下载: 7.xlsx
+2026-03-01 10:34:29,044 - INFO - 192.168.3.25 - - [01/Mar/2026 10:34:29] "GET /download/7.xlsx HTTP/1.1" 200 -
+2026-03-01 10:34:29,265 - INFO - 文件下载: 7.xlsx
+2026-03-01 10:34:29,268 - INFO - 192.168.3.25 - - [01/Mar/2026 10:34:29] "HEAD /download/7.xlsx HTTP/1.1" 200 -
+2026-03-01 10:34:42,650 - INFO - 文件下载: 7.xlsx
+2026-03-01 10:34:42,652 - INFO - 192.168.3.25 - - [01/Mar/2026 10:34:42] "GET /download/7.xlsx HTTP/1.1" 200 -
+2026-03-01 10:35:41,860 - INFO - 文件删除成功: 7.xlsx
+2026-03-01 10:35:41,861 - INFO - 192.168.3.25 - - [01/Mar/2026 10:35:41] "POST /delete/7.xlsx HTTP/1.1" 200 -
+2026-03-01 10:35:42,751 - INFO - 192.168.3.25 - - [01/Mar/2026 10:35:42] "GET / HTTP/1.1" 200 -
+2026-03-01 10:35:42,980 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:35:42,981 - INFO - 192.168.3.25 - - [01/Mar/2026 10:35:42] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:35:46,762 - INFO - 127.0.0.1 - - [01/Mar/2026 10:35:46] "GET / HTTP/1.1" 200 -
+2026-03-01 10:35:47,121 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:35:47,123 - INFO - 127.0.0.1 - - [01/Mar/2026 10:35:47] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:38:58,376 - INFO - 服务器启动 - 监听地址: 0.0.0.0:8080
+2026-03-01 10:38:59,294 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.3.62:8080
+2026-03-01 10:38:59,295 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-01 10:39:03,985 - INFO - 192.168.3.25 - - [01/Mar/2026 10:39:03] "GET / HTTP/1.1" 200 -
+2026-03-01 10:39:04,185 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:39:04,187 - INFO - 192.168.3.25 - - [01/Mar/2026 10:39:04] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:39:07,965 - INFO - 192.168.3.25 - - [01/Mar/2026 10:39:07] "GET /api/files HTTP/1.1" 200 -
+2026-03-01 10:39:11,650 - INFO - 192.168.3.62 - - [01/Mar/2026 10:39:11] "GET / HTTP/1.1" 200 -
+2026-03-01 10:39:13,182 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:39:13,188 - INFO - 192.168.3.62 - - [01/Mar/2026 10:39:13] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:39:20,791 - INFO - 文件上传成功: 7班学生名单.xlsx
+2026-03-01 10:39:20,793 - INFO - 192.168.3.62 - - [01/Mar/2026 10:39:20] "POST /upload HTTP/1.1" 200 -
+2026-03-01 10:39:21,662 - INFO - 192.168.3.62 - - [01/Mar/2026 10:39:21] "GET / HTTP/1.1" 200 -
+2026-03-01 10:39:21,984 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-01 10:39:21,987 - INFO - 192.168.3.62 - - [01/Mar/2026 10:39:21] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-01 10:39:23,712 - INFO - 192.168.3.25 - - [01/Mar/2026 10:39:23] "GET /api/files HTTP/1.1" 200 -
+2026-03-08 12:39:04,431 - INFO - 服务器启动 - 监听地址: 0.0.0.0:8080
+2026-03-08 12:39:04,455 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.11:8080
+2026-03-08 12:39:04,455 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-08 12:39:09,493 - INFO - 192.168.1.11 - - [08/Mar/2026 12:39:09] "GET / HTTP/1.1" 200 -
+2026-03-08 12:39:10,103 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-08 12:39:10,105 - INFO - 192.168.1.11 - - [08/Mar/2026 12:39:10] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-08 12:39:27,811 - WARNING - 上传的文件超过大小限制
+2026-03-08 12:39:27,812 - INFO - 192.168.1.11 - - [08/Mar/2026 12:39:27] "[31m[1mPOST /upload HTTP/1.1[0m" 413 -
+2026-03-08 12:40:07,520 - INFO - 服务器启动 - 监听地址: 0.0.0.0:8080
+2026-03-08 12:40:07,540 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.11:8080
+2026-03-08 12:40:07,541 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-08 12:40:11,015 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:11] "GET / HTTP/1.1" 200 -
+2026-03-08 12:40:11,138 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-08 12:40:11,139 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:11] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-08 12:40:25,215 - INFO - 文件上传成功: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:25,226 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:25] "POST /upload HTTP/1.1" 200 -
+2026-03-08 12:40:26,069 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:26] "GET / HTTP/1.1" 200 -
+2026-03-08 12:40:26,203 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-08 12:40:26,206 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:26] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
+2026-03-08 12:40:28,965 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,017 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "GET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1" 200 -
+2026-03-08 12:40:29,287 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,288 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:29,300 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,302 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:29,318 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,323 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,331 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,333 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:29,338 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:29,338 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,339 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:29,339 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,341 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:29,353 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:29,358 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:29,361 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:29] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,483 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,485 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,582 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,584 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,639 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,645 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,717 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,718 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,718 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,719 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,722 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,722 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,724 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,727 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,746 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,747 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,748 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,753 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,765 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,783 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,786 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,790 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,790 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,802 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,806 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,824 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,828 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,828 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,829 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,830 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,831 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,832 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,834 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,834 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,835 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,835 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,837 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,837 - INFO - 文件下载: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:31,838 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:31,841 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:31] "[35m[1mGET /download/【4K%2060帧】不愧是加拿大甜心蹲妹！《I%20Really%20Like%20You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4 HTTP/1.1[0m" 206 -
+2026-03-08 12:40:45,369 - INFO - 文件删除成功: 【4K 60帧】不愧是加拿大甜心蹲妹！《I Really Like You》一响，甜度承包整个跨年夜【2025B站跨年晚会单品】.mp4
+2026-03-08 12:40:45,371 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:45] "POST /delete/%25E3%2580%25904K%252060%25E5%25B8%25A7%25E3%2580%2591%25E4%25B8%258D%25E6%2584%25A7%25E6%2598%25AF%25E5%258A%25A0%25E6%258B%25BF%25E5%25A4%25A7%25E7%2594%259C%25E5%25BF%2583%25E8%25B9%25B2%25E5%25A6%25B9%25EF%25BC%2581%25E3%2580%258AI%2520Really%2520Like%2520You%25E3%2580%258B%25E4%25B8%2580%25E5%2593%258D%25EF%25BC%258C%25E7%2594%259C%25E5%25BA%25A6%25E6%2589%25BF%25E5%258C%2585%25E6%2595%25B4%25E4%25B8%25AA%25E8%25B7%25A8%25E5%25B9%25B4%25E5%25A4%259C%25E3%2580%25902025B%25E7%25AB%2599%25E8%25B7%25A8%25E5%25B9%25B4%25E6%2599%259A%25E4%25BC%259A%25E5%258D%2595%25E5%2593%2581%25E3%2580%2591.mp4 HTTP/1.1" 200 -
+2026-03-08 12:40:46,201 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:46] "GET / HTTP/1.1" 200 -
+2026-03-08 12:40:46,349 - ERROR - 服务器错误: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2026-03-08 12:40:46,353 - INFO - 192.168.1.11 - - [08/Mar/2026 12:40:46] "[35m[1mGET /favicon.ico HTTP/1.1[0m" 500 -
