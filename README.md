@@ -150,7 +150,7 @@ LocalShare/
 ```python
 UPLOAD_FOLDER = 'files'                    # 上传目录
 ALLOWED_EXTENSIONS = {...}                  # 允许的文件扩展名
-MAX_FILE_SIZE = 500 * 1024 * 1024          # 最大文件大小（字节）
+MAX_FILE_SIZE = 1024 * 1024 * 1024 * 1024         # 最大文件大小（字节）
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 ```
 
