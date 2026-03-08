@@ -139,7 +139,7 @@ LocalShare/
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
 | 监听端口 | 8080 | HTTP服务端口 |
-| 最大文件大小 | 500MB | 单个文件上传大小限制 |
+| 最大文件大小 | 10GB | 单个文件上传大小限制 |
 | 上传目录 | files | 文件存储路径 |
 | 允许的扩展名 | 见上方列表 | 支持的文件类型 |
 
@@ -150,7 +150,7 @@ LocalShare/
 ```python
 UPLOAD_FOLDER = 'files'                    # 上传目录
 ALLOWED_EXTENSIONS = {...}                  # 允许的文件扩展名
-MAX_FILE_SIZE = 1024 * 1024 * 1024 * 1024         # 最大文件大小（字节）
+MAX_FILE_SIZE = 1024 * 1024 * 1024 * 1024 * 10        # 最大文件大小（字节）
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 ```
 
