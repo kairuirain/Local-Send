@@ -10,21 +10,224 @@ import socket
 import logging
 import unicodedata
 import urllib.parse
+import hashlib
+import json
+import random
 from datetime import datetime
-from flask import Flask, render_template_string, request, send_file, jsonify, redirect, url_for
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template_string, request, send_file, jsonify
 from werkzeug.exceptions import RequestEntityTooLarge
 
-# 配置
-UPLOAD_FOLDER = 'files'
+# ==================== 用户管理模块 ====================
+
+class UserManager:
+    """用户管理器，基于浏览器指纹识别用户"""
+
+    def __init__(self, user_data_dir='users'):
+        self.user_data_dir = user_data_dir
+        os.makedirs(user_data_dir, exist_ok=True)
+        self.chinese_chars = [
+            '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+            '天', '地', '玄', '黄', '宇', '宙', '洪', '荒',
+            '春', '夏', '秋', '冬', '东', '南', '西', '北',
+            '梅', '兰', '竹', '菊', '松', '柏', '桃', '李',
+            '云', '风', '雨', '雪', '霜', '露', '霞', '雾',
+            '山', '水', '林', '河', '海', '江', '湖', '溪',
+            '星', '月', '日', '光', '辉', '明', '亮', '清',
+            '金', '银', '铜', '铁', '玉', '石', '珠', '宝',
+            '龙', '凤', '麒', '麟', '鹤', '鸟', '鱼', '马',
+            '心', '灵', '智', '慧', '勇', '毅', '仁', '义'
+        ]
+
+    def _generate_fingerprint(self, request_obj):
+        """生成浏览器指纹"""
+        fingerprint_data = [
+            request_obj.headers.get('User-Agent', ''),
+            request_obj.headers.get('Accept-Language', ''),
+            request_obj.headers.get('Accept-Encoding', ''),
+            request_obj.remote_addr or ''
+        ]
+        fingerprint_str = '|'.join(fingerprint_data)
+        return hashlib.sha256(fingerprint_str.encode('utf-8')).hexdigest()
+
+    def _generate_chinese_username(self, length=8):
+        """生成8个字符的中文名字"""
+        return ''.join(random.choices(self.chinese_chars, k=length))
+
+    def get_or_create_user(self, request_obj):
+        """获取或创建用户"""
+        fingerprint = self._generate_fingerprint(request_obj)
+        user_file = os.path.join(self.user_data_dir, f"{fingerprint}.json")
+
+        if os.path.exists(user_file):
+            with open(user_file, 'r', encoding='utf-8') as f:
+                user_data = json.load(f)
+        else:
+            # 创建新用户
+            username = self._generate_chinese_username(8)
+
+            user_data = {
+                'fingerprint': fingerprint,
+                'user_id': fingerprint[:16],  # 使用指纹前16位作为用户ID
+                'username': username,
+                'created_at': datetime.now().isoformat(),
+                'last_visit': datetime.now().isoformat()
+            }
+
+            with open(user_file, 'w', encoding='utf-8') as f:
+                json.dump(user_data, f, ensure_ascii=False, indent=2)
+
+            # 创建用户个人文件目录
+            user_folder = os.path.join('user_files', user_data['user_id'])
+            os.makedirs(user_folder, exist_ok=True)
+
+            logging.info(f"新用户创建: {username} (ID: {user_data['user_id']})")
+
+        # 更新最后访问时间
+        user_data['last_visit'] = datetime.now().isoformat()
+        with open(user_file, 'w', encoding='utf-8') as f:
+            json.dump(user_data, f, ensure_ascii=False, indent=2)
+
+        return user_data
+
+    def get_user_by_id(self, user_id):
+        """根据用户ID获取用户信息"""
+        for filename in os.listdir(self.user_data_dir):
+            if filename.endswith('.json'):
+                user_file = os.path.join(self.user_data_dir, filename)
+                try:
+                    with open(user_file, 'r', encoding='utf-8') as f:
+                        user_data = json.load(f)
+                    if user_data.get('user_id') == user_id:
+                        return user_data
+                except Exception:
+                    continue
+        return None
+
+# ==================== 文件管理模块 ====================
+
+class FileManager:
+    """文件管理器，处理个人文件和公共文件"""
+
+    def __init__(self):
+        self.public_folder = 'public'
+        self.user_base_folder = 'user_files'
+        os.makedirs(self.public_folder, exist_ok=True)
+        os.makedirs(self.user_base_folder, exist_ok=True)
+
+    def get_user_folder(self, user_id):
+        """获取用户文件目录"""
+        folder = os.path.join(self.user_base_folder, user_id)
+        os.makedirs(folder, exist_ok=True)
+        return folder
+
+    def add_file_metadata(self, file_path, uploader_id, uploader_name, is_public=False):
+        """添加文件元数据"""
+        metadata_file = os.path.join(os.path.dirname(file_path), '.metadata.json')
+
+        metadata = {}
+        if os.path.exists(metadata_file):
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+
+        file_key = os.path.basename(file_path)
+        metadata[file_key] = {
+            'uploader_id': uploader_id,
+            'uploader_name': uploader_name,
+            'upload_time': datetime.now().isoformat(),
+            'is_public': is_public
+        }
+
+        with open(metadata_file, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=2)
+
+    def get_file_metadata(self, file_path):
+        """获取文件元数据"""
+        metadata_file = os.path.join(os.path.dirname(file_path), '.metadata.json')
+        if not os.path.exists(metadata_file):
+            return None
+
+        try:
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+            return metadata.get(os.path.basename(file_path))
+        except Exception:
+            return None
+
+    def can_access_file(self, file_path, user_id):
+        """检查用户是否有权限访问文件"""
+        metadata = self.get_file_metadata(file_path)
+        if not metadata:
+            # 如果没有元数据，默认不允许访问私有文件
+            return False
+
+        # 如果是公共文件，所有人都可以访问
+        if metadata.get('is_public', False):
+            return True
+
+        # 如果是私有文件，只有上传者可以访问
+        return metadata.get('uploader_id') == user_id
+
+    def get_files_list(self, folder, include_metadata=True):
+        """获取文件列表"""
+        files = []
+        try:
+            for filename in os.listdir(folder):
+                if filename.startswith('.'):
+                    continue
+
+                file_path = os.path.join(folder, filename)
+                if os.path.isfile(file_path):
+                    file_size = os.path.getsize(file_path)
+                    ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+
+                    file_info = {
+                        'name': filename,
+                        'size': file_size,
+                        'formatted_size': self._format_file_size(file_size),
+                        'modified': datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                        'ext': ext
+                    }
+
+                    if include_metadata:
+                        metadata = self.get_file_metadata(file_path)
+                        if metadata:
+                            file_info['uploader_name'] = metadata.get('uploader_name', '未知')
+                            file_info['upload_time'] = metadata.get('upload_time', '')
+                        else:
+                            file_info['uploader_name'] = '未知'
+
+                    files.append(file_info)
+
+            files.sort(key=lambda x: os.path.getmtime(os.path.join(folder, x['name'])), reverse=True)
+        except Exception as e:
+            logger.error(f"读取文件列表失败: {e}")
+            raise
+        return files
+
+    def _format_file_size(self, size):
+        """格式化文件大小"""
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size < 1024:
+                return f"{size:.2f} {unit}"
+            size /= 1024
+        return f"{size:.2f} TB"
+
+# ==================== 配置 ====================
+
+UPLOAD_FOLDER = 'files'  # 兼容旧版本
+MAX_FILE_SIZE = 5000 * 1024 * 1024  # 5000MB
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar', '7z', 'mp3', 'mp4', 'avi', 'mov', 'py', 'js', 'html', 'css', 'json', 'xml', 'md'}
-MAX_FILE_SIZE = 1024 * 1024 * 1024 * 5 # 5GB
+HOST = '0.0.0.0'
+PORT = 8080
 
 # 创建Flask应用
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
-app.secret_key = 'localshare-secret-key-2026'
+
+# 初始化管理器
+user_manager = UserManager()
+file_manager = FileManager()
 
 # 配置日志
 logging.basicConfig(
@@ -37,7 +240,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# 确保上传目录存在
+# 确保目录存在
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
@@ -61,15 +264,6 @@ def safe_filename(filename):
         filename = 'unnamed_file'
     return filename
 
-def get_file_size(file_path):
-    """获取文件大小并格式化显示"""
-    size = os.path.getsize(file_path)
-    for unit in ['B', 'KB', 'MB', 'GB']:
-        if size < 1024:
-            return f"{size:.2f} {unit}"
-        size /= 1024
-    return f"{size:.2f} TB"
-
 def get_local_ip():
     """获取本地IP地址"""
     try:
@@ -81,81 +275,245 @@ def get_local_ip():
     except Exception:
         return "127.0.0.1"
 
-def get_files_list():
-    """获取文件列表"""
-    files = []
+def get_current_user():
+    """获取当前用户"""
     try:
-        for filename in os.listdir(UPLOAD_FOLDER):
-            file_path = os.path.join(UPLOAD_FOLDER, filename)
-            if os.path.isfile(file_path):
-                files.append({
-                    'name': filename,
-                    'size': get_file_size(file_path),
-                    'modified': datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
-                })
-        files.sort(key=lambda x: x['modified'], reverse=True)
+        return user_manager.get_or_create_user(request)
     except Exception as e:
-        logger.error(f"读取文件列表失败: {e}")
-        raise
-    return files
+        logger.error(f"获取用户信息失败: {e}")
+        return None
 
 @app.route('/')
 def index():
-    """主页 - 显示文件列表"""
+    """主页 - 显示公共文件列表"""
     try:
-        files = get_files_list()
+        files = file_manager.get_files_list(file_manager.public_folder, include_metadata=True)
     except Exception:
         files = []
-    return render_template_string(HTML_TEMPLATE, files=files, local_ip=get_local_ip())
+
+    user = get_current_user()
+    return render_template_string(
+        HTML_TEMPLATE,
+        files=files,
+        local_ip=get_local_ip(),
+        port=PORT,
+        current_user=user,
+        view='public'
+    )
+
+@app.route('/my-files')
+def my_files():
+    """个人文件页面"""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': '用户未登录'}), 401
+
+    try:
+        user_folder = file_manager.get_user_folder(user['user_id'])
+        files = file_manager.get_files_list(user_folder, include_metadata=True)
+    except Exception:
+        files = []
+
+    return render_template_string(
+        HTML_TEMPLATE,
+        files=files,
+        local_ip=get_local_ip(),
+        port=PORT,
+        current_user=user,
+        view='private'
+    )
 
 @app.route('/api/files')
 def api_files():
-    """API: 获取文件列表（用于刷新）"""
+    """API: 获取公共文件列表"""
     try:
-        files = get_files_list()
-        return jsonify({'success': True, 'files': files})
-    except PermissionError as e:
-        logger.error(f"权限不足，无法读取文件列表: {e}")
-        return jsonify({'success': False, 'message': '权限不足，无法访问文件目录'}), 403
-    except FileNotFoundError as e:
-        logger.error(f"文件目录不存在: {e}")
-        return jsonify({'success': False, 'message': '文件存储目录不存在'}), 500
+        files = file_manager.get_files_list(file_manager.public_folder, include_metadata=True)
+        total_size = sum(f['size'] for f in files)
+        return jsonify({
+            'success': True,
+            'files': files,
+            'stats': {
+                'total_files': len(files),
+                'total_size': file_manager._format_file_size(total_size)
+            }
+        })
     except Exception as e:
         logger.error(f"获取文件列表失败: {e}")
-        return jsonify({'success': False, 'message': '获取文件列表失败，请稍后重试'}), 500
+        return jsonify({'success': False, 'message': '获取文件列表失败'}), 500
+
+@app.route('/api/my-files')
+def api_my_files():
+    """API: 获取个人文件列表"""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': '用户未登录'}), 401
+
+    try:
+        user_folder = file_manager.get_user_folder(user['user_id'])
+        files = file_manager.get_files_list(user_folder, include_metadata=True)
+        total_size = sum(f['size'] for f in files)
+        return jsonify({
+            'success': True,
+            'files': files,
+            'stats': {
+                'total_files': len(files),
+                'total_size': file_manager._format_file_size(total_size)
+            }
+        })
+    except Exception as e:
+        logger.error(f"获取个人文件列表失败: {e}")
+        return jsonify({'success': False, 'message': '获取文件列表失败'}), 500
+
+@app.route('/api/user/info')
+def api_user_info():
+    """API: 获取当前用户信息"""
+    try:
+        user = get_current_user()
+        if user:
+            return jsonify({
+                'success': True,
+                'user': {
+                    'user_id': user.get('user_id'),
+                    'username': user.get('username'),
+                    'created_at': user.get('created_at')
+                }
+            })
+        return jsonify({'success': False, 'message': '获取用户信息失败'}), 500
+    except Exception as e:
+        logger.error(f"获取用户信息失败: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/config')
+def api_config():
+    """API: 获取服务器配置"""
+    try:
+        return jsonify({
+            'success': True,
+            'config': {
+                'max_file_size_mb': MAX_FILE_SIZE // 1024 // 1024,
+                'allowed_extensions': list(ALLOWED_EXTENSIONS),
+                'server_version': '2.0.0'
+            }
+        })
+    except Exception as e:
+        logger.error(f"获取配置失败: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/batch-delete', methods=['POST'])
+def batch_delete_files():
+    """批量删除文件"""
+    try:
+        data = request.get_json()
+        filenames = data.get('files', [])
+        
+        if not filenames:
+            return jsonify({'success': False, 'message': '未选择文件'}), 400
+        
+        deleted_count = 0
+        failed_files = []
+        
+        for filename in filenames:
+            try:
+                # URL解码文件名
+                decoded_filename = urllib.parse.unquote(filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], decoded_filename)
+                
+                # 安全检查
+                real_file_path = os.path.realpath(file_path)
+                real_upload_folder = os.path.realpath(app.config['UPLOAD_FOLDER'])
+                if not real_file_path.startswith(real_upload_folder):
+                    failed_files.append(filename)
+                    continue
+                
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    deleted_count += 1
+                    logger.info(f"文件删除成功: {decoded_filename}")
+                else:
+                    failed_files.append(filename)
+            except Exception as e:
+                logger.error(f"删除文件失败 {filename}: {e}")
+                failed_files.append(filename)
+        
+        if failed_files:
+            return jsonify({
+                'success': True,
+                'message': f'成功删除 {deleted_count} 个文件，{len(failed_files)} 个文件删除失败',
+                'deleted_count': deleted_count,
+                'failed_files': failed_files
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'message': f'成功删除 {deleted_count} 个文件',
+                'deleted_count': deleted_count
+            })
+    except Exception as e:
+        logger.error(f"批量删除失败: {e}")
+        return jsonify({'success': False, 'message': f'批量删除失败: {str(e)}'}), 500
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """处理文件上传"""
+    """处理文件上传（默认上传到公共目录）"""
+    return _upload_file_internal(public=True)
+
+@app.route('/upload/private', methods=['POST'])
+def upload_private_file():
+    """处理私有文件上传"""
+    return _upload_file_internal(public=False)
+
+def _upload_file_internal(public=True):
+    """内部文件上传处理"""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': '用户未登录'}), 401
+
     if 'file' not in request.files:
         logger.warning("上传请求中没有文件")
         return jsonify({'success': False, 'message': '没有选择文件'}), 400
-    
+
     file = request.files['file']
     if file.filename == '':
         logger.warning("上传的文件名为空")
         return jsonify({'success': False, 'message': '没有选择文件'}), 400
-    
+
     if file and allowed_file(file.filename):
         filename = safe_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
+
+        # 选择上传目录
+        if public:
+            upload_folder = file_manager.public_folder
+        else:
+            upload_folder = file_manager.get_user_folder(user['user_id'])
+
+        file_path = os.path.join(upload_folder, filename)
+
         # 如果文件已存在，添加数字后缀
         counter = 1
         original_filename = filename
         while os.path.exists(file_path):
             name, ext = os.path.splitext(original_filename)
             filename = f"{name}_{counter}{ext}"
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file_path = os.path.join(upload_folder, filename)
             counter += 1
-        
+
         try:
             file.save(file_path)
-            logger.info(f"文件上传成功: {filename}")
+            logger.info(f"文件上传成功: {filename} (用户: {user['username']}, 公共: {public})")
+
+            # 添加文件元数据
+            file_manager.add_file_metadata(
+                file_path,
+                user['user_id'],
+                user['username'],
+                is_public=public
+            )
+
             return jsonify({
-                'success': True, 
+                'success': True,
                 'message': f'文件 "{filename}" 上传成功！',
-                'filename': filename
+                'filename': filename,
+                'is_public': public
             })
         except Exception as e:
             logger.error(f"文件上传失败: {e}")
@@ -164,26 +522,154 @@ def upload_file():
         logger.warning(f"不允许的文件类型: {file.filename}")
         return jsonify({'success': False, 'message': '不允许的文件类型'}), 400
 
+@app.route('/view/<path:filename>')
+def view_file(filename):
+    """处理公共文件预览（浏览器直接显示）"""
+    return _view_file_internal(filename, public=True)
+
+@app.route('/view/private/<path:filename>')
+def view_private_file(filename):
+    """处理私有文件预览（浏览器直接显示）"""
+    return _view_file_internal(filename, public=False)
+
 @app.route('/download/<path:filename>')
 def download_file(filename):
-    """处理文件下载"""
+    """处理公共文件下载"""
+    return _download_file_internal(filename, public=True)
+
+@app.route('/download/private/<path:filename>')
+def download_private_file(filename):
+    """处理私有文件下载"""
+    return _download_file_internal(filename, public=False)
+
+def _view_file_internal(filename, public=True):
+    """内部文件预览处理（浏览器直接显示，不下载）"""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': '用户未登录'}), 401
+
     try:
         # URL解码文件名
         filename = urllib.parse.unquote(filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # 安全检查：确保文件路径在UPLOAD_FOLDER内
+
+        # 选择目录
+        if public:
+            view_folder = file_manager.public_folder
+        else:
+            view_folder = file_manager.get_user_folder(user['user_id'])
+
+        file_path = os.path.join(view_folder, filename)
+
+        # 安全检查
         real_file_path = os.path.realpath(file_path)
-        real_upload_folder = os.path.realpath(app.config['UPLOAD_FOLDER'])
-        if not real_file_path.startswith(real_upload_folder):
-            logger.warning(f"非法文件路径: {filename}")
+        real_view_folder = os.path.realpath(view_folder)
+        if not real_file_path.startswith(real_view_folder):
+            logger.warning(f"非法文件路径: {filename} (用户: {user['username']})")
             return jsonify({'success': False, 'message': '非法文件路径'}), 403
-        
+
         if not os.path.exists(file_path):
-            logger.warning(f"下载的文件不存在: {filename}")
-            return jsonify({'success': False, 'message': '文件不存在'}), 404
-        
-        logger.info(f"文件下载: {filename}")
+            # 如果公共文件不存在，尝试在用户私有目录中查找
+            if public:
+                user_folder = file_manager.get_user_folder(user['user_id'])
+                private_file_path = os.path.join(user_folder, filename)
+                if os.path.exists(private_file_path):
+                    # 检查用户是否有权限访问这个私有文件
+                    if not file_manager.can_access_file(private_file_path, user['user_id']):
+                        logger.warning(f"无权限访问私有文件: {filename} (用户: {user['username']})")
+                        return jsonify({'success': False, 'message': '无权限访问此文件'}), 403
+                    logger.info(f"公共文件不存在，重定向到私有文件: {filename} (用户: {user['username']})")
+                    file_path = private_file_path
+                    view_folder = user_folder
+                else:
+                    logger.warning(f"预览的文件不存在: {filename} (用户: {user['username']})")
+                    return jsonify({'success': False, 'message': '文件不存在'}), 404
+            else:
+                # 如果私有文件不存在，尝试在公共目录中查找
+                public_file_path = os.path.join(file_manager.public_folder, filename)
+                if os.path.exists(public_file_path):
+                    logger.info(f"私有文件不存在，重定向到公共文件: {filename} (用户: {user['username']})")
+                    file_path = public_file_path
+                    view_folder = file_manager.public_folder
+                else:
+                    logger.warning(f"预览的文件不存在: {filename} (用户: {user['username']})")
+                    return jsonify({'success': False, 'message': '文件不存在'}), 404
+        else:
+            # 文件存在，检查权限
+            if not public:
+                # 私有文件，检查用户是否有权限
+                if not file_manager.can_access_file(file_path, user['user_id']):
+                    logger.warning(f"无权限访问私有文件: {filename} (用户: {user['username']})")
+                    return jsonify({'success': False, 'message': '无权限访问此文件'}), 403
+
+        logger.info(f"文件预览: {filename} (用户: {user['username']}, 公共: {public})")
+
+        # 使用 inline 方式让浏览器直接显示
+        return send_file(file_path, as_attachment=False)
+    except Exception as e:
+        logger.error(f"文件预览失败: {e}")
+        return jsonify({'success': False, 'message': f'预览失败: {str(e)}'}), 500
+
+def _download_file_internal(filename, public=True):
+    """内部文件下载处理"""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': '用户未登录'}), 401
+
+    try:
+        # URL解码文件名
+        filename = urllib.parse.unquote(filename)
+
+        # 选择目录
+        if public:
+            download_folder = file_manager.public_folder
+        else:
+            download_folder = file_manager.get_user_folder(user['user_id'])
+
+        file_path = os.path.join(download_folder, filename)
+
+        # 安全检查
+        real_file_path = os.path.realpath(file_path)
+        real_download_folder = os.path.realpath(download_folder)
+        if not real_file_path.startswith(real_download_folder):
+            logger.warning(f"非法文件路径: {filename} (用户: {user['username']})")
+            return jsonify({'success': False, 'message': '非法文件路径'}), 403
+
+        if not os.path.exists(file_path):
+            # 如果公共文件不存在，尝试在用户私有目录中查找
+            if public:
+                user_folder = file_manager.get_user_folder(user['user_id'])
+                private_file_path = os.path.join(user_folder, filename)
+                if os.path.exists(private_file_path):
+                    # 检查用户是否有权限访问这个私有文件
+                    if not file_manager.can_access_file(private_file_path, user['user_id']):
+                        logger.warning(f"无权限访问私有文件: {filename} (用户: {user['username']})")
+                        return jsonify({'success': False, 'message': '无权限访问此文件'}), 403
+                    logger.info(f"公共文件不存在，重定向到私有文件: {filename} (用户: {user['username']})")
+                    file_path = private_file_path
+                    download_folder = user_folder
+                else:
+                    logger.warning(f"下载的文件不存在: {filename} (用户: {user['username']})")
+                    return jsonify({'success': False, 'message': '文件不存在'}), 404
+            else:
+                # 如果私有文件不存在，尝试在公共目录中查找
+                public_file_path = os.path.join(file_manager.public_folder, filename)
+                if os.path.exists(public_file_path):
+                    logger.info(f"私有文件不存在，重定向到公共文件: {filename} (用户: {user['username']})")
+                    file_path = public_file_path
+                    download_folder = file_manager.public_folder
+                else:
+                    logger.warning(f"下载的文件不存在: {filename} (用户: {user['username']})")
+                    return jsonify({'success': False, 'message': '文件不存在'}), 404
+        else:
+            # 文件存在，检查权限
+            if not public:
+                # 私有文件，检查用户是否有权限
+                if not file_manager.can_access_file(file_path, user['user_id']):
+                    logger.warning(f"无权限访问私有文件: {filename} (用户: {user['username']})")
+                    return jsonify({'success': False, 'message': '无权限访问此文件'}), 403
+
+        logger.info(f"文件下载: {filename} (用户: {user['username']}, 公共: {public})")
+
         # 对下载文件名进行URL编码以支持中文
         encoded_filename = urllib.parse.quote(filename)
         response = send_file(file_path, as_attachment=True)
@@ -195,24 +681,44 @@ def download_file(filename):
 
 @app.route('/delete/<path:filename>', methods=['POST'])
 def delete_file(filename):
-    """删除文件"""
+    """删除公共文件"""
+    return _delete_file_internal(filename, public=True)
+
+@app.route('/delete/private/<path:filename>', methods=['POST'])
+def delete_private_file(filename):
+    """删除私有文件"""
+    return _delete_file_internal(filename, public=False)
+
+def _delete_file_internal(filename, public=True):
+    """内部文件删除处理"""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': '用户未登录'}), 401
+
     try:
         # URL解码文件名
         filename = urllib.parse.unquote(filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # 安全检查：确保文件路径在UPLOAD_FOLDER内
+
+        # 选择目录
+        if public:
+            delete_folder = file_manager.public_folder
+        else:
+            delete_folder = file_manager.get_user_folder(user['user_id'])
+
+        file_path = os.path.join(delete_folder, filename)
+
+        # 安全检查
         real_file_path = os.path.realpath(file_path)
-        real_upload_folder = os.path.realpath(app.config['UPLOAD_FOLDER'])
-        if not real_file_path.startswith(real_upload_folder):
-            logger.warning(f"非法文件路径: {filename}")
+        real_delete_folder = os.path.realpath(delete_folder)
+        if not real_file_path.startswith(real_delete_folder):
+            logger.warning(f"非法文件路径: {filename} (用户: {user['username']})")
             return jsonify({'success': False, 'message': '非法文件路径'}), 403
-        
+
         if not os.path.exists(file_path):
             return jsonify({'success': False, 'message': '文件不存在'}), 404
-        
+
         os.remove(file_path)
-        logger.info(f"文件删除成功: {filename}")
+        logger.info(f"文件删除成功: {filename} (用户: {user['username']}, 公共: {public})")
         return jsonify({'success': True, 'message': f'文件 "{filename}" 已删除'})
     except Exception as e:
         logger.error(f"文件删除失败: {e}")
@@ -227,8 +733,15 @@ def handle_large_file(e):
 @app.errorhandler(Exception)
 def handle_exception(e):
     """全局错误处理"""
-    logger.error(f"服务器错误: {e}")
+    logger.error(f"服务器错误: {e}", exc_info=True)
     return jsonify({'success': False, 'message': '服务器内部错误'}), 500
+
+@app.errorhandler(404)
+def handle_404(e):
+    """处理404错误"""
+    path = request.path
+    logger.warning(f"404错误 - 请求路径不存在: {path} - User-Agent: {request.headers.get('User-Agent', 'unknown')}")
+    return jsonify({'success': False, 'message': '请求的资源不存在'}), 404
 
 # HTML模板 - 简洁现代化UI设计
 HTML_TEMPLATE = '''
@@ -306,7 +819,61 @@ HTML_TEMPLATE = '''
             color: var(--primary);
             font-weight: 500;
         }
-        
+
+        /* 用户信息 */
+        .user-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--text);
+            margin-top: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .user-info svg {
+            color: var(--primary);
+        }
+
+        .user-info #username {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* 导航标签 */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        .nav-tab {
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .nav-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
         /* 卡片 */
         .card {
             background: var(--card-bg);
@@ -502,8 +1069,9 @@ HTML_TEMPLATE = '''
             border-radius: 8px;
             border: 1px solid transparent;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
-        
+
         .file-item:hover {
             background: #f0f7ff;
             border-color: #bbdefb;
@@ -532,7 +1100,7 @@ HTML_TEMPLATE = '''
             flex: 1;
             min-width: 0;
         }
-        
+
         .file-name {
             font-size: 14px;
             font-weight: 500;
@@ -542,12 +1110,32 @@ HTML_TEMPLATE = '''
             text-overflow: ellipsis;
             margin-bottom: 2px;
         }
-        
+
         .file-meta {
             font-size: 12px;
             color: var(--text-secondary);
+            display: flex;
+            gap: 12px;
+            align-items: center;
         }
-        
+
+        .file-uploader {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--primary);
+            font-weight: 500;
+            background: #e3f2fd;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .file-uploader svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
         .file-actions {
             display: flex;
             gap: 8px;
@@ -696,8 +1284,26 @@ HTML_TEMPLATE = '''
                     <line x1="2" y1="12" x2="22" y2="12"/>
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                 </svg>
-                <span>http://{{ local_ip }}:8080</span>
+                <span>http://{{ local_ip }}:{{ port|default(8080) }}</span>
             </div>
+            {% if current_user %}
+            <div class="user-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span id="username">{{ current_user.username }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 导航标签 -->
+        <div class="nav-tabs">
+            <button class="nav-tab {% if view == 'public' %}active{% endif %}" onclick="switchView('public')">
+                公共文件
+            </button>
+            <button class="nav-tab {% if view == 'private' %}active{% endif %}" onclick="switchView('private')">
+                我的文件
+            </button>
         </div>
         
         <!-- 上传区域 -->
@@ -707,7 +1313,7 @@ HTML_TEMPLATE = '''
                     <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
                 </div>
                 <div class="upload-title">点击或拖拽文件到此处上传</div>
-                <div class="upload-hint">支持多种文件格式，单个文件最大 500MB</div>
+                <div class="upload-hint">支持多种文件格式，单个文件最大 5000MB</div>
                 <input type="file" id="file-input" multiple>
             </div>
             
@@ -741,20 +1347,28 @@ HTML_TEMPLATE = '''
             <div class="file-list" id="file-list">
             {% if files %}
                 {% for file in files %}
-                <div class="file-item">
+                <div class="file-item" onclick="openFile('{{ file.name | urlencode }}', '{{ view }}')">
                     <div class="file-thumb">
                         <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                     </div>
                     <div class="file-info">
                         <div class="file-name">{{ file.name }}</div>
-                        <div class="file-meta">{{ file.size }} · {{ file.modified }}</div>
+                        <div class="file-meta">
+                            <span>{{ file.formatted_size }} · {{ file.modified }}</span>
+                            {% if file.uploader_name %}
+                            <span class="file-uploader">
+                                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                {{ file.uploader_name }}
+                            </span>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="file-actions">
-                        <a href="/download/{{ file.name | urlencode }}" class="btn btn-primary">
+                        <a href="/download/{{ file.name | urlencode }}" class="btn btn-primary" onclick="event.stopPropagation()">
                             <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                             下载
                         </a>
-                        <button class="btn btn-danger" onclick="deleteFile('{{ file.name | urlencode }}')">
+                        <button class="btn btn-danger" onclick="event.stopPropagation(); deleteFile('{{ file.name | urlencode }}')">
                             <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                             删除
                         </button>
@@ -773,7 +1387,7 @@ HTML_TEMPLATE = '''
             </div>
         </div>
     </div>
-    
+
     <script>
         const uploadZone = document.getElementById('upload-zone');
         const fileInput = document.getElementById('file-input');
@@ -781,8 +1395,10 @@ HTML_TEMPLATE = '''
         const progressFill = document.getElementById('progress-fill');
         const progressFile = document.getElementById('progress-file');
         const progressPercent = document.getElementById('progress-percent');
-        
-        // 点击上传
+
+        let currentView = '{{ view|default("public") }}';
+
+        // 切换视图
         uploadZone.addEventListener('click', () => fileInput.click());
         
         // 拖拽事件
@@ -806,19 +1422,31 @@ HTML_TEMPLATE = '''
             [...fileInput.files].forEach(uploadFile);
             fileInput.value = '';
         });
-        
+
+        // 切换视图
+        function switchView(view) {
+            if (view === 'public') {
+                window.location.href = '/';
+            } else if (view === 'private') {
+                window.location.href = '/my-files';
+            }
+        }
+
         // 上传文件
         function uploadFile(file) {
             progressWrap.style.display = 'block';
             progressFill.style.width = '0%';
             progressFile.textContent = file.name;
             progressPercent.textContent = '0%';
-            
+
             const formData = new FormData();
             formData.append('file', file);
-            
+
+            // 根据当前视图选择上传路径
+            const uploadUrl = currentView === 'private' ? '/upload/private' : '/upload';
+
             const xhr = new XMLHttpRequest();
-            
+
             xhr.upload.addEventListener('progress', (e) => {
                 if (e.lengthComputable) {
                     const percent = Math.round((e.loaded / e.total) * 100);
@@ -826,34 +1454,49 @@ HTML_TEMPLATE = '''
                     progressPercent.textContent = percent + '%';
                 }
             });
-            
+
             xhr.addEventListener('load', () => {
                 progressWrap.style.display = 'none';
                 const res = JSON.parse(xhr.responseText);
                 showToast(res.message, res.success ? 'success' : 'error');
-                if (res.success) setTimeout(() => location.reload(), 800);
+                if (res.success) setTimeout(() => refreshFileList(), 500);
             });
-            
+
             xhr.addEventListener('error', () => {
                 progressWrap.style.display = 'none';
                 showToast('上传失败，请重试', 'error');
             });
-            
-            xhr.open('POST', '/upload');
+
+            xhr.open('POST', uploadUrl);
             xhr.send(formData);
         }
-        
+
         // 删除文件
         function deleteFile(filename) {
             if (!confirm(`确定删除 "${filename}"？`)) return;
-            
-            fetch(`/delete/${encodeURIComponent(filename)}`, { method: 'POST' })
+
+            // 根据当前视图选择删除路径
+            const deleteUrl = currentView === 'private'
+                ? `/delete/private/${encodeURIComponent(filename)}`
+                : `/delete/${encodeURIComponent(filename)}`;
+
+            fetch(deleteUrl, { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
                     showToast(data.message, data.success ? 'success' : 'error');
-                    if (data.success) setTimeout(() => location.reload(), 800);
+                    if (data.success) setTimeout(() => refreshFileList(), 500);
                 })
                 .catch(() => showToast('删除失败', 'error'));
+        }
+
+        // 打开文件预览
+        function openFile(filename, view) {
+            // 根据视图选择预览路径
+            const openUrl = view === 'private'
+                ? `/view/private/${filename}`
+                : `/view/${filename}`;
+            // 在新标签页中打开文件，浏览器会根据文件类型自动处理
+            window.open(openUrl, '_blank');
         }
         
         // 提示消息
@@ -869,26 +1512,29 @@ HTML_TEMPLATE = '''
         
         // 刷新文件列表
         let isRefreshing = false;
-        
+
         function refreshFileList() {
             if (isRefreshing) return;
-            
+
             isRefreshing = true;
             const btn = document.getElementById('btn-refresh');
             const fileList = document.getElementById('file-list');
             const loading = document.getElementById('file-list-loading');
-            
+
             // 设置加载状态
             btn.classList.add('loading');
             btn.disabled = true;
             fileList.style.display = 'none';
             loading.style.display = 'block';
-            
+
             // 创建超时控制器
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
-            
-            fetch('/api/files', { signal: controller.signal })
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            // 根据当前视图选择API路径
+            const apiUrl = currentView === 'private' ? '/api/my-files' : '/api/files';
+
+            fetch(apiUrl, { signal: controller.signal })
                 .then(response => {
                     clearTimeout(timeoutId);
                     if (!response.ok) {
@@ -905,23 +1551,23 @@ HTML_TEMPLATE = '''
                         throw new Error(data.message || '获取文件列表失败');
                     }
                 })
-                .catch(error => {
+                .catch(err => {
                     let errorMsg = '刷新失败，请重试';
-                    
-                    if (error.name === 'AbortError') {
+
+                    if (err.name === 'AbortError') {
                         errorMsg = '请求超时，请检查网络连接';
-                    } else if (error.message.includes('403')) {
+                    } else if (err.message && err.message.includes('403')) {
                         errorMsg = '权限不足，无法访问文件列表';
-                    } else if (error.message.includes('404')) {
+                    } else if (err.message && err.message.includes('404')) {
                         errorMsg = '服务不可用，请稍后重试';
-                    } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+                    } else if (err.message && (err.message.includes('NetworkError') || err.message.includes('fetch'))) {
                         errorMsg = '网络连接失败，请检查网络';
-                    } else if (error.message) {
-                        errorMsg = error.message;
+                    } else if (err.message) {
+                        errorMsg = err.message;
                     }
-                    
+
                     showToast(errorMsg, 'error');
-                    logger.error('刷新文件列表失败:', error);
+                    console.error('刷新文件列表失败:', err);
                 })
                 .finally(() => {
                     // 恢复UI状态
@@ -949,14 +1595,25 @@ HTML_TEMPLATE = '''
                 return;
             }
             
-            fileList.innerHTML = files.map(file => `
+            fileList.innerHTML = files.map(file => {
+                const uploaderHtml = file.uploader_name
+                    ? `<span class="file-uploader">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        ${escapeHtml(file.uploader_name)}
+                       </span>`
+                    : '';
+
+                return `
                 <div class="file-item">
                     <div class="file-thumb">
                         <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                     </div>
                     <div class="file-info">
                         <div class="file-name">${escapeHtml(file.name)}</div>
-                        <div class="file-meta">${file.size} · ${file.modified}</div>
+                        <div class="file-meta">
+                            <span>${file.formatted_size} · ${file.modified}</span>
+                            ${uploaderHtml}
+                        </div>
                     </div>
                     <div class="file-actions">
                         <a href="/download/${encodeURIComponent(file.name)}" class="btn btn-primary">
@@ -969,7 +1626,7 @@ HTML_TEMPLATE = '''
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
         
         // HTML转义防止XSS
@@ -984,20 +1641,33 @@ HTML_TEMPLATE = '''
 '''
 
 if __name__ == '__main__':
+    import sys
+    if sys.platform == 'win32':
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
     local_ip = get_local_ip()
+
     print("=" * 60)
-    print("🚀 局域网文件分享中心已启动！")
+    print("🚀 局域网文件分享中心 v2.0 已启动！")
     print("=" * 60)
-    print(f"📍 本机访问: http://127.0.0.1:8080")
-    print(f"🌐 局域网访问: http://{local_ip}:8080")
+    print(f"📍 本机访问: http://127.0.0.1:{PORT}")
+    print(f"🌐 局域网访问: http://{local_ip}:{PORT}")
     print("=" * 60)
-    print(f"📁 文件存储目录: {os.path.abspath(UPLOAD_FOLDER)}")
+    print(f"📁 公共文件目录: {os.path.abspath(file_manager.public_folder)}")
+    print(f"📁 个人文件目录: {os.path.abspath(file_manager.user_base_folder)}")
+    print(f"👥 用户数据目录: {os.path.abspath(user_manager.user_data_dir)}")
     print(f"📋 日志文件: file_share.log")
+    print("=" * 60)
+    print(f"📊 最大文件大小: {MAX_FILE_SIZE // 1024 // 1024} MB")
+    print(f"🔐 支持用户识别: 是（浏览器指纹 + 8字中文用户名）")
     print("=" * 60)
     print("按 Ctrl+C 停止服务")
     print("=" * 60)
-    
-    logger.info(f"服务器启动 - 监听地址: 0.0.0.0:8080")
-    
+
+    logger.info(f"服务器启动 - 监听地址: {HOST}:{PORT}")
+    logger.info(f"用户功能已启用 - 个人文件和公共文件分离")
+
     # 运行服务器，允许局域网访问
-    app.run(host='0.0.0.0', port=8080, debug=False, threaded=True)
+    app.run(host=HOST, port=PORT, threaded=True)
